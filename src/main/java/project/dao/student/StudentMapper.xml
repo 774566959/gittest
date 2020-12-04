@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.dao.student.StudentMapper">
+
+
+<!-- <cache eviction='FIFO' flushInterval='60000' size='512' readOnly='true'/> -->
+<cache type="org.mybatis.caches.ehcache.LoggingEhcache" > 
+        <property name="timeToIdleSeconds" value="3600"/>
+        <property name="timeToLiveSeconds" value="3600"/>
+        <!-- 同ehcache参数maxElementsInMemory-->
+        <property name="maxEntriesLocalHeap" value="1000"/>
+         <!-- 同ehcache参数maxElementsOnDisk -->
+        <property name="maxEntriesLocalDisk" value="10000000"/>
+        <property name="memoryStoreEvictionPolicy" value="LRU"/>
+</cache>
+
+
+	<!-- 查询学生所有记录 -->
+	<select id="getAllStudents" resultType="project.pojo.Student">
+		select * from student
+	</select>
+	<!-- 带单个参数查询学生信息 -->
+	<select id="getStudentById" resultType="project.pojo.Student"
+		parameterType="int">
+		select * from student where id=#{id}
+	</select>
+	
+	<!-- 带多个参数查询学生信息 -->
+	<select id="getStudentsByPage" resultType="project.pojo.Student"
+		parameterType="project.pojo.PageIndexer">
+		select t.* from 
+			(select rownum no,id,name,sex,score,photo from student) t
+			where (t.no&gt;=(#{pageIndex}-1)*#{pageSize}+1) and (t.no &lt;= #{pageIndex}*#{pageSize})
+	</select>
+	
+	
+	<!-- 查询学生记录数 -->
+	<select id="getCount" resultType="int">
+		select count(*) as count from
+		student
+	</select>
+	
+	<!-- 添加学生信息 -->
+	<insert id="addStudent" parameterType="project.pojo.Student">
+		insert into student(id,name,sex,score,photo) values(#{id},#{name},#{sex},#{score},#{photo})
+	</insert>
+	
+	<!-- 修改学生信息 -->
+	<update id="updateStudent" parameterType="project.pojo.Student">
+		update student set name=#{name},sex=#{sex},score=#{score},photo=#{photo}
+		where id=#{id}
+	</update>
+	
+	<!-- 删除学生信息 -->
+	<delete id="deleteStudent" parameterType="int">
+		delete from student where id=#{id}
+	</delete>
+</mapper>
